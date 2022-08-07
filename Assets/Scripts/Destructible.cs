@@ -6,21 +6,26 @@ namespace DefaultNamespace
 {
     public class Destructible : GameItem
     {
-        private void Update()
+        private void OnMouseDown()
         {
-            if (selfDestruct)
-            {
-                StartCoroutine(Kill());
-                selfDestruct = false;
-            }
+            StartCoroutine(Kill());
         }
 
         public override IEnumerator Kill()
         {
+            Instantiate(destructibleMesh, transform.position, transform.rotation);
             AudioController.Instance.PlayAudio(destructibleType, killSound);
+            SetColorAndPlayParticle();
+            yield return new WaitForSeconds(0f);
+        }
+
+        private void SetColorAndPlayParticle()
+        {
+            var p = particleSystem;
+            var mainModule = p.main;
+            var mainModuleStartColor = mainModule.startColor;
+            mainModuleStartColor.gradient = killGradient;
             particleSystem.Play();
-            yield return new WaitForSeconds(timeToKill);
-            Destroy(gameObject);
         }
     }
 }
